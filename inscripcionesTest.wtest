@@ -1,0 +1,143 @@
+import objetosInscripciones.*
+
+const programacion = new Carrera(
+  materias = #{
+    elementosDeProgramacion,
+    matematica1,
+    baseDeDatos,
+    objetos1,
+    objetos2,
+    objetos3,
+    trabajoFinal
+  }
+)
+
+const elementosDeProgramacion = new Materia(carrera = programacion)
+
+const matematica1 = new Materia(carrera = programacion)
+
+const baseDeDatos = new Materia(carrera = programacion)
+
+const objetos1 = new Materia(carrera = programacion)
+
+const objetos2 = new Materia(carrera = programacion)
+
+const objetos3 = new Materia(carrera = programacion)
+
+const trabajoFinal = new Materia(carrera = programacion)
+
+const medicina = new Carrera(
+  materias = #{quimica, biologia1, biologia2, anatomiaGeneral}
+)
+
+const quimica = new Materia(carrera = medicina)
+
+const biologia1 = new Materia(carrera = medicina)
+
+const biologia2 = new Materia(carrera = medicina)
+
+const anatomiaGeneral = new Materia(carrera = medicina)
+
+const derecho = new Carrera(
+  materias = #{latin, derechoRomano, historiaDDA, derechoPenal1, derechoPenal2}
+)
+
+const latin = new Materia(carrera = derecho)
+
+const derechoRomano = new Materia(carrera = derecho)
+
+const historiaDDA = new Materia(carrera = derecho)
+
+const derechoPenal1 = new Materia(carrera = derecho)
+
+const derechoPenal2 = new Materia(carrera = derecho)
+
+const roque2 = new Estudiante(
+  carreras = #{programacion, medicina},
+  materias = #{}
+)
+
+describe "Inscripcion a materias" {
+  test "test sobre requerimientos de las materias" {
+    const programacionConcurrente = new Materia(carrera = programacion)
+    
+    objetos2.agregarMateriaNesesaria(objetos1)
+    objetos2.agregarMateriaNesesaria(matematica1)
+    objetos2.requisitosInscripcion().numeroMaxCupo(3)
+    
+    assert.equals(#{objetos1, matematica1}, objetos2.materiasNesesarias())
+    
+    objetos3.agregarMateriaNesesaria(objetos2)
+    objetos3.agregarMateriaNesesaria(baseDeDatos)
+    assert.equals(#{objetos2, baseDeDatos}, objetos3.materiasNesesarias())
+    
+    programacionConcurrente.agregarMateriaNesesaria(objetos1)
+    programacionConcurrente.agregarMateriaNesesaria(baseDeDatos)
+    assert.equals(
+      #{objetos1, baseDeDatos},
+      programacionConcurrente.materiasNesesarias()
+    )
+    
+    biologia2.agregarMateriaNesesaria(biologia1)
+    
+    const roque = new Estudiante(
+      carreras = #{programacion, medicina},
+      materias = #{}
+    )
+    
+    roque.registrarMateriaAprobada(matematica1, 6)
+    roque.registrarMateriaAprobada(objetos1, 5)
+    roque.registrarMateriaAprobada(elementosDeProgramacion, 5)
+    roque.registrarMateriaAprobada(baseDeDatos, 6)
+    roque.registrarMateriaAprobada(quimica, 6)
+    roque.registrarMateriaAprobada(biologia1, 6)
+    
+    const luisa = new Estudiante(carreras = #{programacion}, materias = #{})
+    const romina = new Estudiante(carreras = #{programacion}, materias = #{})
+    const alicia = new Estudiante(carreras = #{programacion}, materias = #{})
+    const ana = new Estudiante(carreras = #{programacion}, materias = #{})
+    
+    luisa.registrarMateriaAprobada(elementosDeProgramacion, 4)
+    luisa.registrarMateriaAprobada(objetos1, 8)
+    luisa.registrarMateriaAprobada(matematica1, 7)
+    
+    assert.that(luisa.tieneAprobada(elementosDeProgramacion))
+    assert.that(luisa.tieneAprobada(objetos1))
+    assert.that(luisa.tieneAprobada(matematica1))
+    
+    romina.registrarMateriaAprobada(elementosDeProgramacion, 5)
+    romina.registrarMateriaAprobada(objetos1, 8)
+    romina.registrarMateriaAprobada(matematica1, 7)
+    assert.that(romina.tieneAprobada(elementosDeProgramacion))
+    assert.that(romina.tieneAprobada(objetos1))
+    assert.that(romina.tieneAprobada(matematica1))
+    
+    alicia.registrarMateriaAprobada(elementosDeProgramacion, 4)
+    alicia.registrarMateriaAprobada(objetos1, 5)
+    alicia.registrarMateriaAprobada(matematica1, 10)
+    assert.that(alicia.tieneAprobada(elementosDeProgramacion))
+    assert.that(alicia.tieneAprobada(objetos1))
+    assert.that(alicia.tieneAprobada(matematica1))
+    
+    ana.registrarMateriaAprobada(elementosDeProgramacion, 5)
+    assert.that(ana.tieneAprobada(elementosDeProgramacion))
+    
+    assert.that(roque.puedeInscribirse(objetos2))
+    assert.notThat(roque.puedeInscribirse(objetos3))
+    assert.notThat(roque.puedeInscribirse(objetos1))
+    
+    luisa.inscribir(objetos2)
+    romina.inscribir(objetos2)
+    alicia.inscribir(objetos2)
+    roque.inscribir(objetos2)
+    assert.equals(#{luisa, romina, alicia}, objetos2.estudiantesInscriptos())
+    assert.equals([roque], objetos2.listaDeEspera())
+    
+    objetos2.bajaEstudiante(romina)
+    assert.equals(#{luisa, alicia, roque}, objetos2.estudiantesInscriptos())
+    assert.equals([], objetos2.listaDeEspera())
+    
+    luisa.inscribir(baseDeDatos)
+    assert.equals(#{objetos2, baseDeDatos}, luisa.materiasDondeEstoyInscripto())
+  }
+}
